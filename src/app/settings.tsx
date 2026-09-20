@@ -3,11 +3,12 @@ import { Alert, Linking, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { SettingRow } from '@/components/SettingRow';
 import { TimeField } from '@/components/TimeField';
+import { OptionPicker } from '@/components/OptionPicker';
 import { fontSize, fontWeight, radius, spacing } from '@/constants/theme';
 import { useSettings } from '@/hooks/useSettings';
 import { useTheme } from '@/hooks/useTheme';
 import { cancelReminder, ensureNotificationPermission, ReminderKind, scheduleReminder } from '@/services/notifications';
-import { ReminderSetting } from '@/services/settings';
+import { ReminderSetting, ThemePreference } from '@/services/settings';
 
 export default function SettingsScreen() {
   const { colors, cardShadow } = useTheme();
@@ -62,6 +63,22 @@ export default function SettingsScreen() {
 
   return (
     <Screen edges={[]}>
+      <View style={styles.section}>
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>APPEARANCE</Text>
+        <View style={[styles.card, cardShadow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <OptionPicker<ThemePreference>
+            label="Theme"
+            value={settings.theme}
+            options={[
+              { value: 'system', label: 'System' },
+              { value: 'light', label: 'Light' },
+              { value: 'dark', label: 'Dark' },
+            ]}
+            onChange={(theme) => updateSettings({ theme })}
+          />
+        </View>
+      </View>
+
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>PLANNING</Text>
         <View style={[styles.card, cardShadow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
