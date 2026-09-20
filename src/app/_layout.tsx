@@ -3,12 +3,15 @@ import { StatusBar } from 'expo-status-bar';
 
 import { fontWeight } from '@/constants/theme';
 import { SettingsProvider } from '@/hooks/useSettings';
+import { ToastProvider } from '@/hooks/useToast';
 import { useTheme } from '@/hooks/useTheme';
 
 export default function RootLayout() {
   return (
     <SettingsProvider>
-      <ThemedStack />
+      <ToastProvider>
+        <ThemedStack />
+      </ToastProvider>
     </SettingsProvider>
   );
 }

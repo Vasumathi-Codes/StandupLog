@@ -10,15 +10,18 @@ export function useCopyShare(text: string) {
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  const copy = async () => {
+  // Resolves to true if the text was copied.
+  const copy = async (): Promise<boolean> => {
     try {
       await Clipboard.setStringAsync(text);
       setCopied(true);
       clearTimeout(timer.current);
       timer.current = setTimeout(() => setCopied(false), 2000);
+      return true;
     } catch (error) {
       console.error('[clipboard] copy failed', error);
       Alert.alert('Could not copy', 'Please try again.');
+      return false;
     }
   };
 

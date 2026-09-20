@@ -9,19 +9,22 @@ import { Button } from './Button';
 import { EmptyState } from './EmptyState';
 import { NoteCard } from './NoteCard';
 import { SectionHeader } from './SectionHeader';
+import { TimesheetActions } from './TimesheetActions';
 
 const TYPES: NoteType[] = ['DONE', 'PLAN', 'BLOCKER'];
 
 type Props = {
   date: string;
   notes: Note[];
+  // Every note (not just the ones shown), so a project filter can't silently trim the timesheet.
+  timesheetNotes: Note[];
   onAdd: () => void;
   onEdit: (note: Note) => void;
   onMore: (note: Note) => void;
   onResolve: (note: Note) => void;
 };
 
-export function DayNotes({ date, notes, onAdd, onEdit, onMore, onResolve }: Props) {
+export function DayNotes({ date, notes, timesheetNotes, onAdd, onEdit, onMore, onResolve }: Props) {
   const { colors } = useTheme();
   return (
     <View style={styles.container}>
@@ -44,6 +47,7 @@ export function DayNotes({ date, notes, onAdd, onEdit, onMore, onResolve }: Prop
         />
       ) : (
         <>
+          <TimesheetActions notes={timesheetNotes} date={date} />
           {TYPES.map((type) => {
             const group = notes
               .filter((note) => note.type === type)

@@ -64,6 +64,7 @@ export default function CalendarScreen() {
         <DayNotes
           date={selectedDate}
           notes={dayNotes}
+          timesheetNotes={notes}
           // The selected date, not today, is what the new note gets.
           onAdd={() => router.push({ pathname: '/add-note', params: { date: selectedDate } })}
           onEdit={edit}

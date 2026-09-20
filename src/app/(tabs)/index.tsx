@@ -8,6 +8,7 @@ import { QuickAddButton } from '@/components/QuickAddButton';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { SectionHeader } from '@/components/SectionHeader';
+import { TimesheetActions } from '@/components/TimesheetActions';
 import { NOTE_TYPE_META, spacing } from '@/constants/theme';
 import { CarryOverCard } from '@/components/CarryOverCard';
 import { useCarryOver } from '@/hooks/useCarryOver';
@@ -80,6 +81,8 @@ export default function TodayScreen() {
           onAction={() => openAdd('DONE')}
         />
       )}
+
+      {!loading && !error && count > 0 && <TimesheetActions notes={allNotes} date={today} />}
 
       {!loading &&
         !error &&
