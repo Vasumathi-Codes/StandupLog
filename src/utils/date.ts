@@ -79,3 +79,8 @@ export function getMonthGrid({ year, month }: YearMonth): (string | null)[][] {
   for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
   return weeks;
 }
+
+export function addDays(date: string, delta: number): string {
+  const parsed = parseDateString(date);
+  return toDateString(new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate() + delta));
+}

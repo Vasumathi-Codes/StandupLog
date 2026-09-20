@@ -41,6 +41,13 @@ export default function TodayScreen() {
         ))}
       </View>
 
+      <Button
+        label="Generate Standup"
+        icon="document-text-outline"
+        variant="secondary"
+        onPress={() => router.push('/standup')}
+      />
+
       {loading && <ActivityIndicator color={colors.primary} style={styles.loading} />}
 
       {!loading && error && <EmptyState icon="alert-circle-outline" title="Couldn't load updates" message={error} />}
