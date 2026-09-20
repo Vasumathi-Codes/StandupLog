@@ -13,6 +13,8 @@ import { spacing } from '@/constants/theme';
 import { CarryOverCard } from '@/components/CarryOverCard';
 import { useCarryOver } from '@/hooks/useCarryOver';
 import { useSettings } from '@/hooks/useSettings';
+import { useDayBlockEditor } from '@/hooks/useDayBlockEditor';
+import { useProjects } from '@/hooks/useProjects';
 import { useNoteActions } from '@/hooks/useNoteActions';
 import { useNotes } from '@/hooks/useNotes';
 import { useTheme } from '@/hooks/useTheme';
@@ -24,13 +26,13 @@ const TYPES: NoteType[] = ['DONE', 'PLAN', 'BLOCKER'];
 export default function TodayScreen() {
   const { colors } = useTheme();
   const { notes: allNotes, loading, error, reload } = useNotes();
-  const { edit, openMenu, resolve, saveGroupEdits } = useNoteActions(reload);
+  const { resolve } = useNoteActions(reload);
   const today = todayString();
+  const editor = useDayBlockEditor(today, reload);
+  const { projects } = useProjects(allNotes);
   const { settings } = useSettings();
   const carryOver = useCarryOver(allNotes, today, settings.carryOverPlans, reload);
   const notes = allNotes.filter((note) => note.date === today);
-
-  const openAdd = (type: NoteType) => router.push({ pathname: '/add-note', params: { type, date: today } });
 
   const count = notes.length;
   const summary = count === 0 ? 'No updates yet today' : `${count} ${count === 1 ? 'update' : 'updates'} today`;
@@ -42,7 +44,7 @@ export default function TodayScreen() {
       <View style={styles.quickRow}>
         {TYPES.map((type) => (
           <View key={type} style={styles.quickItem}>
-            <QuickAddButton type={type} onPress={() => openAdd(type)} />
+            <QuickAddButton type={type} onPress={() => editor.startEditing(type)} />
           </View>
         ))}
       </View>
@@ -72,13 +74,13 @@ export default function TodayScreen() {
         </View>
       )}
 
-      {!loading && !error && count === 0 && (
+      {!loading && !error && count === 0 && editor.editingType === null && (
         <EmptyState
           icon="create-outline"
           title="No updates yet"
           message="Start logging what you worked on today."
           actionLabel="Add Update"
-          onAction={() => openAdd('DONE')}
+          onAction={() => editor.startEditing('DONE')}
         />
       )}
 
@@ -89,23 +91,24 @@ export default function TodayScreen() {
         TYPES.map((type) => {
           const group = notes
             .filter((note) => note.type === type)
-            // Active blockers first, resolved ones sink to the bottom.
-            .sort((a, b) => Number(a.resolved) - Number(b.resolved));
-          if (group.length === 0) return null;
+            // Active blockers first, resolved ones sink to the bottom; otherwise in the order added.
+            .sort((a, b) => Number(a.resolved) - Number(b.resolved) || a.createdAt.localeCompare(b.createdAt));
+          // A category with no updates only shows while you are adding its first one.
+          if (group.length === 0 && editor.editingType !== type) return null;
           return (
             <NoteGroupCard
               key={type}
               type={type}
               notes={group}
-              onPress={edit}
-              onMorePress={openMenu}
+              editing={editor.editingType === type}
+              onStartEdit={() => editor.startEditing(type)}
+              onCancel={editor.cancel}
+              onSave={(values) => editor.save(type, group, values)}
               onResolve={resolve}
-              onSaveEdits={saveGroupEdits}
+              projectSuggestions={projects}
             />
           );
         })}
-
-      {!loading && !error && count > 0 && <Button label="Add Update" icon="add" onPress={() => openAdd('DONE')} />}
     </Screen>
   );
 }

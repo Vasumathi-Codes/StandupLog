@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, LayoutAnimation } from 'react-native';
 
@@ -8,6 +7,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { ProjectChips } from '@/components/ProjectChips';
+import { useDayBlockEditor } from '@/hooks/useDayBlockEditor';
 import { useNoteActions } from '@/hooks/useNoteActions';
 import { useNotes } from '@/hooks/useNotes';
 import { useProjects } from '@/hooks/useProjects';
@@ -18,9 +18,11 @@ import { matchesProject, summarizeByDate } from '@/utils/notes';
 export default function CalendarScreen() {
   const { colors } = useTheme();
   const { notes, loading, error, reload } = useNotes();
-  const { edit, openMenu, resolve, saveGroupEdits } = useNoteActions(reload);
+  const { resolve } = useNoteActions(reload);
   const [visibleMonth, setVisibleMonth] = useState(currentYearMonth);
   const [selectedDate, setSelectedDate] = useState(todayString);
+  // The selected calendar date is the source of truth for edits, never today's date.
+  const editor = useDayBlockEditor(selectedDate, reload);
 
   const [project, setProject] = useState<string | null>(null);
 
@@ -65,12 +67,9 @@ export default function CalendarScreen() {
           date={selectedDate}
           notes={dayNotes}
           timesheetNotes={notes}
-          // The selected date, not today, is what the new note gets.
-          onAdd={() => router.push({ pathname: '/add-note', params: { date: selectedDate } })}
-          onEdit={edit}
-          onMore={openMenu}
+          editor={editor}
+          projectSuggestions={projects}
           onResolve={resolve}
-          onSaveEdits={saveGroupEdits}
         />
       )}
     </Screen>

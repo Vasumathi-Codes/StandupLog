@@ -42,7 +42,6 @@ function ThemedStack() {
         <Stack.Screen name="settings" options={{ title: 'Settings' }} />
         <Stack.Screen name="search" options={{ title: 'Search' }} />
         <Stack.Screen name="standup" options={{ title: 'Standup' }} />
-        <Stack.Screen name="add-note" options={{ title: 'Add Update', presentation: 'modal' }} />
         <Stack.Screen name="edit-note" options={{ title: 'Edit Update', presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>

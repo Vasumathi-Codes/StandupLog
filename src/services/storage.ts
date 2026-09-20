@@ -67,12 +67,11 @@ export async function saveNotes(notes: Note[]): Promise<void> {
   }
 }
 
-export async function addNote(input: NewNoteInput): Promise<Note> {
+function createNote(input: NewNoteInput & { createdAt?: string }): Note {
   const text = validateText(input.text);
   validateDate(input.date);
-
   const now = new Date().toISOString();
-  const note: Note = {
+  return {
     id: generateId(),
     text,
     type: input.type,
@@ -80,13 +79,49 @@ export async function addNote(input: NewNoteInput): Promise<Note> {
     project: cleanProject(input.project),
     carriedFrom: input.carriedFrom,
     resolved: false,
-    createdAt: now,
+    createdAt: input.createdAt ?? now,
     updatedAt: now,
   };
+}
 
+export async function addNote(input: NewNoteInput): Promise<Note> {
+  const note = createNote(input);
   const notes = await getNotes();
   await saveNotes([...notes, note]);
   return note;
+}
+
+export type NoteChanges = {
+  // Only the fields present are changed. `project: undefined` clears the project.
+  updates: { id: string; text?: string; createdAt?: string; project?: string }[];
+  additions: (NewNoteInput & { createdAt?: string })[];
+  deletedIds: string[];
+};
+
+// Applies edits, additions and deletions in ONE read and ONE write, so a daily-editor Save
+// either fully happens or (on validation failure) doesn't happen at all.
+// Existing notes keep their id and createdAt; only edited ones get a new updatedAt.
+export async function applyNoteChanges({ updates, additions, deletedIds }: NoteChanges): Promise<void> {
+  const notes = await getNotes();
+  const deleted = new Set(deletedIds);
+  const edits = new Map(updates.map((update) => [update.id, update]));
+  const now = new Date().toISOString();
+
+  const next = notes
+    .filter((note) => !deleted.has(note.id))
+    .map((note) => {
+      const edit = edits.get(note.id);
+      if (!edit) return note;
+      const contentChanged = edit.text !== undefined || 'project' in edit;
+      return {
+        ...note,
+        text: edit.text !== undefined ? validateText(edit.text) : note.text,
+        project: 'project' in edit ? cleanProject(edit.project) : note.project,
+        createdAt: edit.createdAt ?? note.createdAt, // only changes when the order changed
+        updatedAt: contentChanged ? now : note.updatedAt,
+      };
+    });
+  await saveNotes([...next, ...additions.map(createNote)]);
 }
 
 export async function updateNote(id: string, changes: NoteUpdate): Promise<Note> {
