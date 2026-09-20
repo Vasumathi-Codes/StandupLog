@@ -84,3 +84,14 @@ export function addDays(date: string, delta: number): string {
   const parsed = parseDateString(date);
   return toDateString(new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate() + delta));
 }
+
+// Monday of the week containing `date`.
+export function startOfWeek(date: string): string {
+  const offset = (parseDateString(date).getDay() + 6) % 7;
+  return addDays(date, -offset);
+}
+
+// e.g. "Sep 14"
+export function formatShortDate(date: string): string {
+  return parseDateString(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
