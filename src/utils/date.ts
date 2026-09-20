@@ -40,3 +40,42 @@ export function parseDateString(value: string): Date {
   const [year, month, day] = value.split('-').map(Number);
   return new Date(year, month - 1, day);
 }
+
+export type YearMonth = { year: number; month: number }; // month is 0-11, like JS Date
+
+export function currentYearMonth(): YearMonth {
+  const now = new Date();
+  return { year: now.getFullYear(), month: now.getMonth() };
+}
+
+export function addMonths({ year, month }: YearMonth, delta: number): YearMonth {
+  const shifted = new Date(year, month + delta, 1);
+  return { year: shifted.getFullYear(), month: shifted.getMonth() };
+}
+
+// e.g. "September 2026"
+export function formatMonthYear({ year, month }: YearMonth): string {
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+
+// e.g. "September 16" or "September 16, 2026"
+export function formatMonthDay(date: string, withYear = false): string {
+  return parseDateString(date).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    ...(withYear ? { year: 'numeric' } : {}),
+  });
+}
+
+// Weeks (Monday first) of date strings; null pads days outside the month.
+export function getMonthGrid({ year, month }: YearMonth): (string | null)[][] {
+  const leadingBlanks = (new Date(year, month, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells: (string | null)[] = Array(leadingBlanks).fill(null);
+  for (let day = 1; day <= daysInMonth; day++) cells.push(toDateString(new Date(year, month, day)));
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  const weeks: (string | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+  return weeks;
+}
