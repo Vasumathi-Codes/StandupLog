@@ -1,12 +1,34 @@
-import { Stack } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 
-// Root layout: a Stack lets screens push on top of each other (like settings).
-// The "(tabs)" folder is a route group: it adds the tab bar without adding "/tabs" to the URL.
+import { fontWeight } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
+
 export default function RootLayout() {
+  const { colors, isDark } = useTheme();
+  const base = isDark ? DarkTheme : DefaultTheme;
+
+  // Tell React Navigation (which Expo Router uses) about our colours so its
+  // built-in backgrounds, headers and transitions match the app.
+  const navTheme = {
+    ...base,
+    colors: {
+      ...base.colors,
+      primary: colors.primary,
+      background: colors.background,
+      card: colors.background,
+      text: colors.text,
+      border: colors.border,
+    },
+  };
+
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="settings" options={{ title: 'Settings' }} />
-    </Stack>
+    <ThemeProvider value={navTheme}>
+      <StatusBar style="auto" />
+      <Stack screenOptions={{ headerShadowVisible: false, headerTitleStyle: { fontWeight: fontWeight.semibold } }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+      </Stack>
+    </ThemeProvider>
   );
 }

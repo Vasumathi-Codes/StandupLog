@@ -1,16 +1,30 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+
+import { EmptyState } from '@/components/EmptyState';
+import { Screen } from '@/components/Screen';
+import { ScreenHeader } from '@/components/ScreenHeader';
+import { StatCard } from '@/components/StatCard';
+import { spacing } from '@/constants/theme';
 
 export default function ReportsScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Reports</Text>
-      <Text style={styles.body}>Weekly summaries will appear here.</Text>
-    </View>
+    <Screen>
+      <ScreenHeader title="Reports" subtitle="Weekly summary" />
+      {/* Placeholder values: real weekly numbers arrive in Phase 8. */}
+      <View style={styles.stats}>
+        <StatCard value="–" label="Done" type="DONE" />
+        <StatCard value="–" label="Plans" type="PLAN" />
+        <StatCard value="–" label="Blockers" type="BLOCKER" />
+      </View>
+      <EmptyState
+        icon="bar-chart-outline"
+        title="Weekly report coming soon"
+        message="Complete a few updates to see your weekly summary. This arrives in Phase 8."
+      />
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  title: { fontSize: 28, fontWeight: '700', marginBottom: 8 },
-  body: { fontSize: 16, color: '#666', textAlign: 'center' },
+  stats: { flexDirection: 'row', gap: spacing.sm },
 });

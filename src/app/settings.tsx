@@ -1,16 +1,14 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { EmptyState } from '@/components/EmptyState';
+import { Screen } from '@/components/Screen';
 
 export default function SettingsScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
-      <Text style={styles.body}>Reminders, theme and carry-over options will go here.</Text>
-    </View>
+    <Screen>
+      <EmptyState
+        icon="settings-outline"
+        title="Settings coming soon"
+        message="Reminders, theme and carry-over options will live here."
+      />
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  title: { fontSize: 28, fontWeight: '700', marginBottom: 8 },
-  body: { fontSize: 16, color: '#666', textAlign: 'center' },
-});

@@ -1,16 +1,16 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { EmptyState } from '@/components/EmptyState';
+import { Screen } from '@/components/Screen';
+import { ScreenHeader } from '@/components/ScreenHeader';
 
 export default function CalendarScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Calendar</Text>
-      <Text style={styles.body}>Browse past updates by date.</Text>
-    </View>
+    <Screen>
+      <ScreenHeader title="Calendar" subtitle="Your work journal" />
+      <EmptyState
+        icon="calendar-outline"
+        title="Calendar coming soon"
+        message="Browse what you worked on for any day. This arrives in Phase 5."
+      />
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  title: { fontSize: 28, fontWeight: '700', marginBottom: 8 },
-  body: { fontSize: 16, color: '#666', textAlign: 'center' },
-});

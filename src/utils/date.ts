@@ -22,3 +22,15 @@ export function toDateString(date: Date): string {
 export function todayString(): string {
   return toDateString(new Date());
 }
+
+export function greeting(now: Date = new Date()): string {
+  const hour = now.getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+
+// e.g. "Sunday, September 20"
+export function formatLongDate(date: Date = new Date()): string {
+  return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
