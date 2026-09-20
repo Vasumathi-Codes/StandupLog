@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, LayoutAnimation } from 'react-native';
 
 import { CalendarView } from '@/components/CalendarView';
@@ -24,8 +24,12 @@ export default function CalendarScreen() {
 
   const [project, setProject] = useState<string | null>(null);
 
-  const { projects, addProject } = useProjects(notes);
+  const { projects, addProject, removeProject } = useProjects(notes, reload);
   const visibleNotes = useMemo(() => notes.filter((note) => matchesProject(note, project)), [notes, project]);
+  useEffect(() => {
+    if (project && !projects.includes(project)) setProject(null);
+  }, [projects, project]);
+
   const summaries = useMemo(() => summarizeByDate(visibleNotes), [visibleNotes]);
   const dayNotes = useMemo(() => visibleNotes.filter((note) => note.date === selectedDate), [visibleNotes, selectedDate]);
 
@@ -43,7 +47,7 @@ export default function CalendarScreen() {
     <Screen>
       <ScreenHeader title="Calendar" subtitle="Your work journal" />
 
-      <ProjectChips projects={projects} selected={project} onSelect={setProject} onAddProject={addProject} />
+      <ProjectChips projects={projects} selected={project} onSelect={setProject} onAddProject={addProject} onRemoveProject={removeProject} />
 
       <CalendarView
         visibleMonth={visibleMonth}

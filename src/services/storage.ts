@@ -135,3 +135,10 @@ export async function getNotesBetweenDates(startDate: string, endDate: string): 
   const notes = await getNotes();
   return notes.filter((note) => note.date >= startDate && note.date <= endDate);
 }
+
+// Removes the project tag from every note that uses it. The notes themselves are kept.
+export async function clearProjectFromNotes(project: string): Promise<void> {
+  const target = project.toLowerCase();
+  const notes = await getNotes();
+  await saveNotes(notes.map((note) => (note.project?.toLowerCase() === target ? { ...note, project: undefined } : note)));
+}

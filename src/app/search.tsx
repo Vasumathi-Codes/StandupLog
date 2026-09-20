@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/EmptyState';
@@ -22,7 +22,11 @@ export default function SearchScreen() {
   const [query, setQuery] = useState('');
   const [project, setProject] = useState<string | null>(null);
 
-  const { projects, addProject } = useProjects(notes);
+  const { projects, addProject, removeProject } = useProjects(notes, reload);
+  useEffect(() => {
+    if (project && !projects.includes(project)) setProject(null);
+  }, [projects, project]);
+
   const results = useMemo(() => searchNotes(notes, query, project), [notes, query, project]);
   const groups = useMemo(() => groupByDate(results), [results]);
   const isFiltering = query.trim() !== '' || project !== null;
@@ -30,7 +34,7 @@ export default function SearchScreen() {
   return (
     <Screen edges={[]}>
       <SearchBar value={query} onChangeText={setQuery} />
-      <ProjectChips projects={projects} selected={project} onSelect={setProject} onAddProject={addProject} />
+      <ProjectChips projects={projects} selected={project} onSelect={setProject} onAddProject={addProject} onRemoveProject={removeProject} />
 
       {loading && <ActivityIndicator color={colors.primary} />}
       {!loading && error && <EmptyState icon="alert-circle-outline" title="Couldn't load updates" message={error} />}

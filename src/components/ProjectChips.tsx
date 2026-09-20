@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { fontSize, fontWeight, iconSize, MIN_TOUCH, radius, spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -15,9 +15,11 @@ type Props = {
   showAll?: boolean;
   // When provided, a "+ New" chip lets the user type a new project name.
   onAddProject?: (name: string) => void;
+  // When provided, long-pressing a project chip asks to delete it.
+  onRemoveProject?: (name: string) => void;
 };
 
-export function ProjectChips({ projects, selected, onSelect, showAll = true, onAddProject }: Props) {
+export function ProjectChips({ projects, selected, onSelect, showAll = true, onAddProject, onRemoveProject }: Props) {
   const { colors } = useTheme();
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState('');
@@ -36,6 +38,8 @@ export function ProjectChips({ projects, selected, onSelect, showAll = true, onA
       <PressableScale
         key={label}
         onPress={() => onSelect(active && value !== null && !showAll ? null : value)}
+        onLongPress={value !== null && onRemoveProject ? () => onRemoveProject(value) : undefined}
+        accessibilityHint={value !== null && onRemoveProject ? 'Long press to delete this project' : undefined}
         accessibilityRole="button"
         accessibilityLabel={`${label}${active ? ', selected' : ''}`}
         accessibilityState={{ selected: active }}
@@ -46,6 +50,7 @@ export function ProjectChips({ projects, selected, onSelect, showAll = true, onA
   };
 
   return (
+    <View style={styles.container}>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row} keyboardShouldPersistTaps="handled">
       {showAll && chip('All', null)}
       {projects.map((project) => chip(project, project))}
@@ -76,10 +81,16 @@ export function ProjectChips({ projects, selected, onSelect, showAll = true, onA
           </PressableScale>
         ))}
     </ScrollView>
+    {onRemoveProject && projects.length > 0 && (
+      <Text style={[styles.hint, { color: colors.textMuted }]}>Long-press a project to delete it</Text>
+    )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: { gap: spacing.xs },
+  hint: { fontSize: fontSize.caption },
   row: { gap: spacing.sm, alignItems: 'center' },
   chip: { minHeight: MIN_TOUCH - 8, paddingHorizontal: spacing.md, borderRadius: radius.pill, justifyContent: 'center' },
   addChip: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, borderWidth: 1, borderStyle: 'dashed' },
