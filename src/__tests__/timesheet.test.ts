@@ -40,3 +40,10 @@ describe('generateTimesheetText', () => {
     expect(text).not.toMatch(/Secret|A plan|n\d+|2026-/);
   });
 });
+
+describe('generateTimesheetText without blockers', () => {
+  it('leaves the Blockers section out when turned off', () => {
+    const notes = [makeNote({ type: 'DONE', date: DAY, text: 'Did it' }), makeNote({ type: 'BLOCKER', date: DAY, text: 'Stuck' })];
+    expect(generateTimesheetText(notes, DAY, { includeBlockers: false })).toBe('Worked on:\n- Did it');
+  });
+});

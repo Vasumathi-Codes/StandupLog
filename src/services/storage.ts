@@ -4,7 +4,7 @@ import { NewNoteInput, Note, NoteUpdate } from '@/types/note';
 import { isValidDateString } from '@/utils/date';
 
 // Bump the suffix if the stored shape ever changes, so we can migrate.
-const NOTES_KEY = 'standuplog:notes:v1';
+export const NOTES_KEY = 'standuplog:notes:v1';
 
 // Thrown for anything the UI should show as a friendly message.
 export class StorageError extends Error {
@@ -14,7 +14,7 @@ export class StorageError extends Error {
   }
 }
 
-function isNote(value: unknown): value is Note {
+export function isNote(value: unknown): value is Note {
   if (typeof value !== 'object' || value === null) return false;
   const note = value as Record<string, unknown>;
   return (

@@ -6,6 +6,9 @@ export type ReminderSetting = { enabled: boolean; hour: number; minute: number }
 
 export interface Settings {
   carryOverPlans: boolean;
+  // Pre-filled project for new updates. Empty string = none.
+  defaultProject: string;
+  includeBlockersInTimesheet: boolean;
   // Projects added by hand, so they exist before any note uses them.
   projects: string[];
   theme: ThemePreference;
@@ -15,13 +18,15 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   carryOverPlans: false,
+  defaultProject: '',
+  includeBlockersInTimesheet: true,
   projects: [],
   theme: 'system',
   eveningReminder: { enabled: false, hour: 17, minute: 0 },
   morningReminder: { enabled: false, hour: 9, minute: 0 },
 };
 
-const SETTINGS_KEY = 'standuplog:settings:v1';
+export const SETTINGS_KEY = 'standuplog:settings:v1';
 
 // Missing or malformed fields fall back to defaults, so adding a setting later never breaks old data.
 export async function getSettings(): Promise<Settings> {

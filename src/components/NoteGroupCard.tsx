@@ -4,6 +4,7 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { fontSize, fontWeight, getTypeColors, iconSize, MIN_TOUCH, NOTE_TYPE_META, radius, spacing } from '@/constants/theme';
 import { BlockValues } from '@/hooks/useDayBlockEditor';
+import { useSettings } from '@/hooks/useSettings';
 import { useTheme } from '@/hooks/useTheme';
 import { commonProject, notesToEditorText } from '@/services/dayEditor';
 import { Note, NoteType } from '@/types/note';
@@ -27,6 +28,7 @@ type Props = {
 // One card per category per day. "Edit" turns all its updates into one text box (one update per line).
 export function NoteGroupCard({ type, notes, editing, onStartEdit, onCancel, onSave, onResolve, projectSuggestions }: Props) {
   const { colors, cardShadow } = useTheme();
+  const { settings } = useSettings();
   const typeColors = getTypeColors(colors, type);
   const { plural, icon } = NOTE_TYPE_META[type];
   const hasActiveBlocker = type === 'BLOCKER' && notes.some((note) => !note.resolved);
@@ -44,7 +46,8 @@ export function NoteGroupCard({ type, notes, editing, onStartEdit, onCancel, onS
   useEffect(() => {
     if (!editing) return;
     setText(notesToEditorText(editable));
-    setProject(shared ?? '');
+    // No shared project (empty group, or none set): start from the default project from Settings.
+    setProject(shared === '' ? settings.defaultProject : (shared ?? ''));
     setProjectDirty(false);
     setError(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps

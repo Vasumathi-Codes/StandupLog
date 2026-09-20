@@ -40,6 +40,11 @@ function ThemedStack() {
       <Stack screenOptions={{ headerShadowVisible: false, headerTitleStyle: { fontWeight: fontWeight.semibold } }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+        <Stack.Screen name="default-project" options={{ title: 'Default project' }} />
+        <Stack.Screen name="standup-format" options={{ title: 'Standup format' }} />
+        <Stack.Screen name="timesheet-format" options={{ title: 'Timesheet format' }} />
+        <Stack.Screen name="export-data" options={{ title: 'Export data' }} />
+        <Stack.Screen name="import-data" options={{ title: 'Import data' }} />
         <Stack.Screen name="search" options={{ title: 'Search' }} />
         <Stack.Screen name="standup" options={{ title: 'Standup' }} />
         <Stack.Screen name="edit-note" options={{ title: 'Edit Update', presentation: 'modal' }} />

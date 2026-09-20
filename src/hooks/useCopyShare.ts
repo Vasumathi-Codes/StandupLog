@@ -30,6 +30,8 @@ export function useCopyShare(text: string) {
       // Opens the system share sheet (Slack, Teams, WhatsApp, Mail...). Dismissing it is not an error.
       await Share.share({ message: text });
     } catch (error) {
+      // On the web, closing the share sheet without sharing rejects with AbortError. That's a cancel.
+      if (error instanceof Error && error.name === 'AbortError') return;
       console.error('[share] share failed', error);
       Alert.alert('Could not share', 'Please try again.');
     }

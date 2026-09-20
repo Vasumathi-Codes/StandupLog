@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Note } from '@/types/note';
 import { addDays } from '@/utils/date';
 
-const DISMISSED_KEY = 'standuplog:carryover-dismissed:v1';
+export const DISMISSED_KEY = 'standuplog:carryover-dismissed:v1';
 // How far back we look for unfinished plans.
 const LOOKBACK_DAYS = 7;
 

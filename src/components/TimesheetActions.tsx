@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { spacing } from '@/constants/theme';
 import { useCopyShare } from '@/hooks/useCopyShare';
+import { useSettings } from '@/hooks/useSettings';
 import { useToast } from '@/hooks/useToast';
 import { generateTimesheetText } from '@/services/timesheet';
 import { Note } from '@/types/note';
@@ -17,7 +18,8 @@ type Props = {
 
 export function TimesheetActions({ notes, date }: Props) {
   const showToast = useToast();
-  const text = generateTimesheetText(notes, date);
+  const { settings } = useSettings();
+  const text = generateTimesheetText(notes, date, { includeBlockers: settings.includeBlockersInTimesheet });
   const { copy, share } = useCopyShare(text);
 
   const handleCopy = async () => {
