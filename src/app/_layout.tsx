@@ -28,6 +28,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShadowVisible: false, headerTitleStyle: { fontWeight: fontWeight.semibold } }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+        <Stack.Screen name="add-note" options={{ title: 'Add Update', presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );

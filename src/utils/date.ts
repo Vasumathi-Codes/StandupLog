@@ -34,3 +34,9 @@ export function greeting(now: Date = new Date()): string {
 export function formatLongDate(date: Date = new Date()): string {
   return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 }
+
+// Turns "2026-09-18" into a local Date at midnight, without the UTC shift of new Date("2026-09-18").
+export function parseDateString(value: string): Date {
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}

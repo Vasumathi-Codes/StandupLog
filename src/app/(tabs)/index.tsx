@@ -1,62 +1,28 @@
-import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
+import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { NoteCard } from '@/components/NoteCard';
 import { QuickAddButton } from '@/components/QuickAddButton';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { SectionHeader } from '@/components/SectionHeader';
-import { fontSize, NOTE_TYPE_META, spacing } from '@/constants/theme';
+import { NOTE_TYPE_META, spacing } from '@/constants/theme';
+import { useNotes } from '@/hooks/useNotes';
 import { useTheme } from '@/hooks/useTheme';
-import { addNote, getNotesForDate, StorageError } from '@/services/storage';
-import { Note, NoteType } from '@/types/note';
+import { NoteType } from '@/types/note';
 import { formatLongDate, greeting, todayString } from '@/utils/date';
 
 const TYPES: NoteType[] = ['DONE', 'PLAN', 'BLOCKER'];
 
-// TEMPORARY until Phase 3: the Add Update flow doesn't exist yet, so the quick-add
-// buttons save a sample note of that type so you can see the design with real data.
-const SAMPLE_TEXT: Record<NoteType, string> = {
-  DONE: 'Fixed appointment API issue',
-  PLAN: 'Start QA testing',
-  BLOCKER: 'Waiting for QA environment',
-};
-
 export default function TodayScreen() {
   const { colors } = useTheme();
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { notes: allNotes, loading, error } = useNotes();
   const today = todayString();
+  const notes = allNotes.filter((note) => note.date === today);
 
-  const load = useCallback(async () => {
-    try {
-      setNotes(await getNotesForDate(today));
-      setError(null);
-    } catch (e) {
-      setError(e instanceof StorageError ? e.message : 'Something went wrong.');
-    } finally {
-      setLoading(false);
-    }
-  }, [today]);
-
-  // Reload whenever this tab comes into focus (e.g. after adding a note elsewhere).
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [load]),
-  );
-
-  const quickAdd = async (type: NoteType) => {
-    try {
-      await addNote({ text: SAMPLE_TEXT[type], type, date: today, project: 'MyEHE' });
-      await load();
-    } catch (e) {
-      Alert.alert('Could not save', e instanceof StorageError ? e.message : 'Please try again.');
-    }
-  };
+  const openAdd = (type: NoteType) => router.push({ pathname: '/add-note', params: { type, date: today } });
 
   const count = notes.length;
   const summary = count === 0 ? 'No updates yet today' : `${count} ${count === 1 ? 'update' : 'updates'} today`;
@@ -68,22 +34,22 @@ export default function TodayScreen() {
       <View style={styles.quickRow}>
         {TYPES.map((type) => (
           <View key={type} style={styles.quickItem}>
-            <QuickAddButton type={type} onPress={() => quickAdd(type)} />
+            <QuickAddButton type={type} onPress={() => openAdd(type)} />
           </View>
         ))}
       </View>
 
       {loading && <ActivityIndicator color={colors.primary} style={styles.loading} />}
 
-      {!loading && error && (
-        <EmptyState icon="alert-circle-outline" title="Couldn't load updates" message={error} />
-      )}
+      {!loading && error && <EmptyState icon="alert-circle-outline" title="Couldn't load updates" message={error} />}
 
       {!loading && !error && count === 0 && (
         <EmptyState
           icon="create-outline"
           title="No updates yet"
-          message="Start logging what you worked on today. Tap Done, Plan or Blocker above."
+          message="Start logging what you worked on today."
+          actionLabel="Add Update"
+          onAction={() => openAdd('DONE')}
         />
       )}
 
@@ -104,6 +70,8 @@ export default function TodayScreen() {
             </View>
           );
         })}
+
+      {!loading && !error && count > 0 && <Button label="Add Update" icon="add" onPress={() => openAdd('DONE')} />}
     </Screen>
   );
 }
