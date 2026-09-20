@@ -78,6 +78,7 @@ export async function addNote(input: NewNoteInput): Promise<Note> {
     type: input.type,
     date: input.date,
     project: cleanProject(input.project),
+    carriedFrom: input.carriedFrom,
     resolved: false,
     createdAt: now,
     updatedAt: now,

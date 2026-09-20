@@ -9,6 +9,9 @@ import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { SectionHeader } from '@/components/SectionHeader';
 import { NOTE_TYPE_META, spacing } from '@/constants/theme';
+import { CarryOverCard } from '@/components/CarryOverCard';
+import { useCarryOver } from '@/hooks/useCarryOver';
+import { useSettings } from '@/hooks/useSettings';
 import { useNoteActions } from '@/hooks/useNoteActions';
 import { useNotes } from '@/hooks/useNotes';
 import { useTheme } from '@/hooks/useTheme';
@@ -22,6 +25,8 @@ export default function TodayScreen() {
   const { notes: allNotes, loading, error, reload } = useNotes();
   const { edit, openMenu, resolve } = useNoteActions(reload);
   const today = todayString();
+  const { settings } = useSettings();
+  const carryOver = useCarryOver(allNotes, today, settings.carryOverPlans, reload);
   const notes = allNotes.filter((note) => note.date === today);
 
   const openAdd = (type: NoteType) => router.push({ pathname: '/add-note', params: { type, date: today } });
@@ -51,6 +56,20 @@ export default function TodayScreen() {
       {loading && <ActivityIndicator color={colors.primary} style={styles.loading} />}
 
       {!loading && error && <EmptyState icon="alert-circle-outline" title="Couldn't load updates" message={error} />}
+
+      {!loading && !error && carryOver.candidates.length > 0 && (
+        <View style={styles.section}>
+          <SectionHeader title="Carry over" count={carryOver.candidates.length} />
+          {carryOver.candidates.map((plan) => (
+            <CarryOverCard
+              key={plan.id}
+              plan={plan}
+              onAccept={() => carryOver.accept(plan)}
+              onDismiss={() => carryOver.dismiss(plan)}
+            />
+          ))}
+        </View>
+      )}
 
       {!loading && !error && count === 0 && (
         <EmptyState

@@ -11,6 +11,9 @@ export interface Note {
 
   project?: string;
 
+  // Set when this PLAN was accepted as a carry-over: the id of the original plan.
+  carriedFrom?: string;
+
   // Relevant mainly for BLOCKER notes.
   resolved: boolean;
 
@@ -19,7 +22,7 @@ export interface Note {
 }
 
 // What the caller provides when creating a note; the storage layer fills in the rest.
-export type NewNoteInput = Pick<Note, 'text' | 'type' | 'date'> & { project?: string };
+export type NewNoteInput = Pick<Note, 'text' | 'type' | 'date'> & { project?: string; carriedFrom?: string };
 
 // Fields that can change on an existing note.
 export type NoteUpdate = Partial<Pick<Note, 'text' | 'type' | 'date' | 'project' | 'resolved'>>;

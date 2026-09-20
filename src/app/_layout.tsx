@@ -2,9 +2,18 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import { fontWeight } from '@/constants/theme';
+import { SettingsProvider } from '@/hooks/useSettings';
 import { useTheme } from '@/hooks/useTheme';
 
 export default function RootLayout() {
+  return (
+    <SettingsProvider>
+      <ThemedStack />
+    </SettingsProvider>
+  );
+}
+
+function ThemedStack() {
   const { colors, isDark } = useTheme();
   const base = isDark ? DarkTheme : DefaultTheme;
 
