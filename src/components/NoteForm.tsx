@@ -17,6 +17,8 @@ type Props = {
   // Should throw an Error with a friendly message if saving fails.
   onSubmit: (values: NoteFormValues) => Promise<void>;
   onCancel: () => void;
+  // When provided (editing), shows a Delete button.
+  onDelete?: () => void;
 };
 
 const PLACEHOLDER: Record<NoteType, string> = {
@@ -25,7 +27,7 @@ const PLACEHOLDER: Record<NoteType, string> = {
   BLOCKER: "What's blocking you?",
 };
 
-export function NoteForm({ initialValues, dateLabel, submitLabel, onSubmit, onCancel }: Props) {
+export function NoteForm({ initialValues, dateLabel, submitLabel, onSubmit, onCancel, onDelete }: Props) {
   const { colors } = useTheme();
   const [type, setType] = useState(initialValues.type);
   const [text, setText] = useState(initialValues.text);
@@ -90,6 +92,8 @@ export function NoteForm({ initialValues, dateLabel, submitLabel, onSubmit, onCa
           <Button label="Cancel" variant="secondary" onPress={onCancel} style={styles.action} />
           <Button label={submitLabel} onPress={handleSubmit} disabled={!canSave} style={styles.action} />
         </View>
+
+        {onDelete && <Button label="Delete update" variant="destructive" icon="trash-outline" onPress={onDelete} />}
       </ScrollView>
     </KeyboardAvoidingView>
   );

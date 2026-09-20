@@ -29,6 +29,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ title: 'Settings' }} />
         <Stack.Screen name="add-note" options={{ title: 'Add Update', presentation: 'modal' }} />
+        <Stack.Screen name="edit-note" options={{ title: 'Edit Update', presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );

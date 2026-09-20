@@ -9,6 +9,7 @@ import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { SectionHeader } from '@/components/SectionHeader';
 import { NOTE_TYPE_META, spacing } from '@/constants/theme';
+import { useNoteActions } from '@/hooks/useNoteActions';
 import { useNotes } from '@/hooks/useNotes';
 import { useTheme } from '@/hooks/useTheme';
 import { NoteType } from '@/types/note';
@@ -18,7 +19,8 @@ const TYPES: NoteType[] = ['DONE', 'PLAN', 'BLOCKER'];
 
 export default function TodayScreen() {
   const { colors } = useTheme();
-  const { notes: allNotes, loading, error } = useNotes();
+  const { notes: allNotes, loading, error, reload } = useNotes();
+  const { edit, openMenu, resolve } = useNoteActions(reload);
   const today = todayString();
   const notes = allNotes.filter((note) => note.date === today);
 
@@ -65,7 +67,13 @@ export default function TodayScreen() {
             <View key={type} style={styles.section}>
               <SectionHeader title={NOTE_TYPE_META[type].plural} count={group.length} type={type} />
               {group.map((note) => (
-                <NoteCard key={note.id} note={note} />
+                <NoteCard
+                  key={note.id}
+                  note={note}
+                  onPress={() => edit(note)}
+                  onMorePress={() => openMenu(note)}
+                  onResolve={() => resolve(note)}
+                />
               ))}
             </View>
           );
