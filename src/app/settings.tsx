@@ -1,14 +1,64 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
 import { SettingRow } from '@/components/SettingRow';
+import { TimeField } from '@/components/TimeField';
 import { fontSize, fontWeight, radius, spacing } from '@/constants/theme';
 import { useSettings } from '@/hooks/useSettings';
 import { useTheme } from '@/hooks/useTheme';
+import { cancelReminder, ensureNotificationPermission, ReminderKind, scheduleReminder } from '@/services/notifications';
+import { ReminderSetting } from '@/services/settings';
 
 export default function SettingsScreen() {
   const { colors, cardShadow } = useTheme();
   const { settings, updateSettings } = useSettings();
+
+  const reminderKey = { evening: 'eveningReminder', morning: 'morningReminder' } as const;
+
+  const changeReminder = async (kind: ReminderKind, changes: Partial<ReminderSetting>) => {
+    const next = { ...settings[reminderKey[kind]], ...changes };
+    try {
+      if (next.enabled) {
+        // Permission is requested here, the first time a reminder is switched on.
+        const allowed = await ensureNotificationPermission();
+        if (!allowed) {
+          Alert.alert(
+            'Notifications are turned off',
+            'Allow notifications for Standup Log in your phone settings to get reminders.',
+            [{ text: 'Not now', style: 'cancel' }, { text: 'Open Settings', onPress: () => Linking.openSettings() }],
+          );
+          return; // leave the switch off
+        }
+        await scheduleReminder(kind, next);
+      } else {
+        await cancelReminder(kind);
+      }
+      await updateSettings({ [reminderKey[kind]]: next });
+    } catch (error) {
+      console.error('[settings] reminder change failed', error);
+      Alert.alert('Could not update reminder', 'Please try again.');
+    }
+  };
+
+  const reminderRow = (kind: ReminderKind, title: string, description: string) => {
+    const reminder = settings[reminderKey[kind]];
+    return (
+      <SettingRow
+        title={title}
+        description={description}
+        value={reminder.enabled}
+        onValueChange={(enabled) => changeReminder(kind, { enabled })}>
+        {reminder.enabled && (
+          <TimeField
+            label="Time"
+            hour={reminder.hour}
+            minute={reminder.minute}
+            onChange={(hour, minute) => changeReminder(kind, { hour, minute })}
+          />
+        )}
+      </SettingRow>
+    );
+  };
 
   return (
     <Screen edges={[]}>
@@ -23,6 +73,15 @@ export default function SettingsScreen() {
           />
         </View>
       </View>
+
+      <View style={styles.section}>
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>REMINDERS</Text>
+        <View style={[styles.card, cardShadow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          {reminderRow('evening', 'Evening reminder', '"What did you finish today?"')}
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          {reminderRow('morning', 'Morning reminder', '"Your standup is ready."')}
+        </View>
+      </View>
     </Screen>
   );
 }
@@ -30,5 +89,6 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   section: { gap: spacing.sm },
   sectionTitle: { fontSize: fontSize.caption, fontWeight: fontWeight.semibold, letterSpacing: 0.6 },
+  divider: { height: StyleSheet.hairlineWidth },
   card: { padding: spacing.lg, borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, gap: spacing.lg },
 });
