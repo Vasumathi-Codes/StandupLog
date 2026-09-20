@@ -33,12 +33,10 @@ export function NoteCard({ note, onPress, onMorePress, onResolve, highlight }: P
   const backgroundColor = isBlocker && !isResolved ? typeColors.tint : colors.surface;
   const meta = [note.project, formatTime(note.createdAt)].filter(Boolean).join(' • ');
 
+  // The card is a plain View; only the text area is the "open/edit" button.
+  // Buttons must not be nested inside other buttons (invalid on web, fragile on native).
   return (
-    <PressableScale
-      onPress={onPress}
-      disabled={!onPress}
-      accessibilityRole={onPress ? 'button' : undefined}
-      accessibilityLabel={`${NOTE_TYPE_META[note.type].label}${isResolved ? ', resolved' : ''}: ${note.text}`}
+    <View
       style={[
         styles.card,
         cardShadow,
@@ -58,16 +56,24 @@ export function NoteCard({ note, onPress, onMorePress, onResolve, highlight }: P
           </PressableScale>
         )}
       </View>
-      <HighlightedText
-        text={note.text}
-        query={highlight}
-        style={[styles.text, { color: colors.text }, isResolved && styles.strike]}
-      />
-      <Text style={[styles.meta, { color: colors.textSecondary }]}>{meta}</Text>
+      <PressableScale
+        onPress={onPress}
+        disabled={!onPress}
+        scaleTo={0.985}
+        accessibilityRole={onPress ? 'button' : undefined}
+        accessibilityLabel={`${NOTE_TYPE_META[note.type].label}${isResolved ? ', resolved' : ''}: ${note.text}`}
+        style={styles.body}>
+        <HighlightedText
+          text={note.text}
+          query={highlight}
+          style={[styles.text, { color: colors.text }, isResolved && styles.strike]}
+        />
+        <Text style={[styles.meta, { color: colors.textSecondary }]}>{meta}</Text>
+      </PressableScale>
       {isBlocker && !isResolved && onResolve && (
         <Button label="Resolve" variant="secondary" icon="checkmark" onPress={onResolve} style={styles.resolve} />
       )}
-    </PressableScale>
+    </View>
   );
 }
 
@@ -78,6 +84,7 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     gap: spacing.sm,
   },
+  body: { gap: spacing.sm },
   topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   more: { width: MIN_TOUCH, height: 32, alignItems: 'flex-end', justifyContent: 'center', marginRight: -spacing.xs },
   text: { fontSize: fontSize.bodyLarge, fontWeight: fontWeight.medium, lineHeight: 22 },

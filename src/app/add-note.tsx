@@ -2,9 +2,9 @@ import { router, useLocalSearchParams } from 'expo-router';
 
 import { NoteForm, NoteFormValues } from '@/components/NoteForm';
 import { useNotes } from '@/hooks/useNotes';
+import { useProjects } from '@/hooks/useProjects';
 import { addNote } from '@/services/storage';
 import { NoteType } from '@/types/note';
-import { uniqueProjects } from '@/utils/notes';
 import { formatLongDate, isValidDateString, parseDateString, todayString } from '@/utils/date';
 
 const TYPES: NoteType[] = ['DONE', 'PLAN', 'BLOCKER'];
@@ -13,6 +13,7 @@ const TYPES: NoteType[] = ['DONE', 'PLAN', 'BLOCKER'];
 // Callers pass ?date=YYYY-MM-DD (Calendar will use this in Phase 5) and ?type=DONE|PLAN|BLOCKER.
 export default function AddNoteScreen() {
   const { notes } = useNotes();
+  const { projects } = useProjects(notes);
   const params = useLocalSearchParams<{ date?: string; type?: string }>();
   const date = params.date && isValidDateString(params.date) ? params.date : todayString();
   const type = TYPES.find((t) => t === params.type) ?? 'DONE';
@@ -29,7 +30,7 @@ export default function AddNoteScreen() {
       submitLabel="Add Update"
       onSubmit={handleSubmit}
       onCancel={() => router.back()}
-      projectSuggestions={uniqueProjects(notes)}
+      projectSuggestions={projects}
     />
   );
 }

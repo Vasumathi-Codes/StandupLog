@@ -33,7 +33,7 @@ function ThemedStack() {
 
   return (
     <ThemeProvider value={navTheme}>
-      <StatusBar style="auto" />
+      <StatusBar style={isDark ? "light" : "dark"} />
       <Stack screenOptions={{ headerShadowVisible: false, headerTitleStyle: { fontWeight: fontWeight.semibold } }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ title: 'Settings' }} />

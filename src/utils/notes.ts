@@ -59,3 +59,12 @@ export function groupByDate(notes: Note[]): { date: string; notes: Note[] }[] {
   }
   return groups;
 }
+
+// Projects used in notes plus ones added by hand, case-insensitively unique, alphabetical.
+export function allProjects(notes: Note[], savedProjects: string[]): string[] {
+  const seen = new Map<string, string>();
+  for (const name of [...savedProjects, ...uniqueProjects(notes)]) {
+    if (!seen.has(name.toLowerCase())) seen.set(name.toLowerCase(), name);
+  }
+  return [...seen.values()].sort((a, b) => a.localeCompare(b));
+}

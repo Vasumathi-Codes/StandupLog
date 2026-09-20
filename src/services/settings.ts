@@ -6,6 +6,8 @@ export type ReminderSetting = { enabled: boolean; hour: number; minute: number }
 
 export interface Settings {
   carryOverPlans: boolean;
+  // Projects added by hand, so they exist before any note uses them.
+  projects: string[];
   theme: ThemePreference;
   eveningReminder: ReminderSetting;
   morningReminder: ReminderSetting;
@@ -13,6 +15,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   carryOverPlans: false,
+  projects: [],
   theme: 'system',
   eveningReminder: { enabled: false, hour: 17, minute: 0 },
   morningReminder: { enabled: false, hour: 9, minute: 0 },

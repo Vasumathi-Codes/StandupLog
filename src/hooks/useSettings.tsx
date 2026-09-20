@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
-import { Alert, Appearance } from 'react-native';
+import { Alert } from 'react-native';
 
 import { DEFAULT_SETTINGS, getSettings, saveSettings, Settings } from '@/services/settings';
 
@@ -23,13 +23,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setLoaded(true);
     });
   }, []);
-
-  // Appearance.setColorScheme overrides what React Native reports as the phone's theme,
-  // so useColorScheme(), the status bar and native controls all follow our choice.
-  // 'unspecified' means "no override": follow the system.
-  useEffect(() => {
-    Appearance.setColorScheme(settings.theme === 'system' ? 'unspecified' : settings.theme);
-  }, [settings.theme]);
 
   const updateSettings = useCallback(
     async (changes: Partial<Settings>) => {

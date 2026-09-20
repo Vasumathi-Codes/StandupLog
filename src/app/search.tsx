@@ -10,9 +10,10 @@ import { SearchBar } from '@/components/SearchBar';
 import { fontSize, fontWeight, spacing } from '@/constants/theme';
 import { useNoteActions } from '@/hooks/useNoteActions';
 import { useNotes } from '@/hooks/useNotes';
+import { useProjects } from '@/hooks/useProjects';
 import { useTheme } from '@/hooks/useTheme';
 import { formatMonthDay } from '@/utils/date';
-import { groupByDate, searchNotes, uniqueProjects } from '@/utils/notes';
+import { groupByDate, searchNotes } from '@/utils/notes';
 
 export default function SearchScreen() {
   const { colors } = useTheme();
@@ -21,7 +22,7 @@ export default function SearchScreen() {
   const [query, setQuery] = useState('');
   const [project, setProject] = useState<string | null>(null);
 
-  const projects = useMemo(() => uniqueProjects(notes), [notes]);
+  const { projects, addProject } = useProjects(notes);
   const results = useMemo(() => searchNotes(notes, query, project), [notes, query, project]);
   const groups = useMemo(() => groupByDate(results), [results]);
   const isFiltering = query.trim() !== '' || project !== null;
@@ -29,7 +30,7 @@ export default function SearchScreen() {
   return (
     <Screen edges={[]}>
       <SearchBar value={query} onChangeText={setQuery} />
-      <ProjectChips projects={projects} selected={project} onSelect={setProject} />
+      <ProjectChips projects={projects} selected={project} onSelect={setProject} onAddProject={addProject} />
 
       {loading && <ActivityIndicator color={colors.primary} />}
       {!loading && error && <EmptyState icon="alert-circle-outline" title="Couldn't load updates" message={error} />}

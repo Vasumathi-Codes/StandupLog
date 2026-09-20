@@ -10,9 +10,10 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { ProjectChips } from '@/components/ProjectChips';
 import { useNoteActions } from '@/hooks/useNoteActions';
 import { useNotes } from '@/hooks/useNotes';
+import { useProjects } from '@/hooks/useProjects';
 import { useTheme } from '@/hooks/useTheme';
 import { addMonths, currentYearMonth, todayString } from '@/utils/date';
-import { matchesProject, summarizeByDate, uniqueProjects } from '@/utils/notes';
+import { matchesProject, summarizeByDate } from '@/utils/notes';
 
 export default function CalendarScreen() {
   const { colors } = useTheme();
@@ -23,7 +24,7 @@ export default function CalendarScreen() {
 
   const [project, setProject] = useState<string | null>(null);
 
-  const projects = useMemo(() => uniqueProjects(notes), [notes]);
+  const { projects, addProject } = useProjects(notes);
   const visibleNotes = useMemo(() => notes.filter((note) => matchesProject(note, project)), [notes, project]);
   const summaries = useMemo(() => summarizeByDate(visibleNotes), [visibleNotes]);
   const dayNotes = useMemo(() => visibleNotes.filter((note) => note.date === selectedDate), [visibleNotes, selectedDate]);
@@ -42,7 +43,7 @@ export default function CalendarScreen() {
     <Screen>
       <ScreenHeader title="Calendar" subtitle="Your work journal" />
 
-      <ProjectChips projects={projects} selected={project} onSelect={setProject} />
+      <ProjectChips projects={projects} selected={project} onSelect={setProject} onAddProject={addProject} />
 
       <CalendarView
         visibleMonth={visibleMonth}

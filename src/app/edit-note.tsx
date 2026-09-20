@@ -7,12 +7,14 @@ import { NoteForm, NoteFormValues } from '@/components/NoteForm';
 import { useTheme } from '@/hooks/useTheme';
 import { deleteNote, getNotes, updateNote } from '@/services/storage';
 import { Note } from '@/types/note';
-import { uniqueProjects } from '@/utils/notes';
+import { useSettings } from '@/hooks/useSettings';
+import { allProjects, uniqueProjects } from '@/utils/notes';
 import { formatLongDate, parseDateString } from '@/utils/date';
 
 export default function EditNoteScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { colors } = useTheme();
+  const { settings } = useSettings();
   const [note, setNote] = useState<Note | null>(null);
   const [projects, setProjects] = useState<string[]>([]);
   const [status, setStatus] = useState<'loading' | 'ready' | 'missing'>('loading');
@@ -75,7 +77,7 @@ export default function EditNoteScreen() {
       onSubmit={handleSubmit}
       onCancel={() => router.back()}
       onDelete={handleDelete}
-      projectSuggestions={projects}
+      projectSuggestions={allProjects([], [...settings.projects, ...projects])}
     />
   );
 }
