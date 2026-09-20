@@ -3,13 +3,13 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
-import { NoteCard } from '@/components/NoteCard';
+import { NoteGroupCard } from '@/components/NoteGroupCard';
 import { QuickAddButton } from '@/components/QuickAddButton';
 import { Screen } from '@/components/Screen';
-import { ScreenHeader } from '@/components/ScreenHeader';
 import { SectionHeader } from '@/components/SectionHeader';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { TimesheetActions } from '@/components/TimesheetActions';
-import { NOTE_TYPE_META, spacing } from '@/constants/theme';
+import { spacing } from '@/constants/theme';
 import { CarryOverCard } from '@/components/CarryOverCard';
 import { useCarryOver } from '@/hooks/useCarryOver';
 import { useSettings } from '@/hooks/useSettings';
@@ -24,7 +24,7 @@ const TYPES: NoteType[] = ['DONE', 'PLAN', 'BLOCKER'];
 export default function TodayScreen() {
   const { colors } = useTheme();
   const { notes: allNotes, loading, error, reload } = useNotes();
-  const { edit, openMenu, resolve } = useNoteActions(reload);
+  const { edit, openMenu, resolve, saveGroupEdits } = useNoteActions(reload);
   const today = todayString();
   const { settings } = useSettings();
   const carryOver = useCarryOver(allNotes, today, settings.carryOverPlans, reload);
@@ -93,18 +93,15 @@ export default function TodayScreen() {
             .sort((a, b) => Number(a.resolved) - Number(b.resolved));
           if (group.length === 0) return null;
           return (
-            <View key={type} style={styles.section}>
-              <SectionHeader title={NOTE_TYPE_META[type].plural} count={group.length} type={type} />
-              {group.map((note) => (
-                <NoteCard
-                  key={note.id}
-                  note={note}
-                  onPress={() => edit(note)}
-                  onMorePress={() => openMenu(note)}
-                  onResolve={() => resolve(note)}
-                />
-              ))}
-            </View>
+            <NoteGroupCard
+              key={type}
+              type={type}
+              notes={group}
+              onPress={edit}
+              onMorePress={openMenu}
+              onResolve={resolve}
+              onSaveEdits={saveGroupEdits}
+            />
           );
         })}
 

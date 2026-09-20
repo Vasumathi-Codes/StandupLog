@@ -18,7 +18,7 @@ import { matchesProject, summarizeByDate } from '@/utils/notes';
 export default function CalendarScreen() {
   const { colors } = useTheme();
   const { notes, loading, error, reload } = useNotes();
-  const { edit, openMenu, resolve } = useNoteActions(reload);
+  const { edit, openMenu, resolve, saveGroupEdits } = useNoteActions(reload);
   const [visibleMonth, setVisibleMonth] = useState(currentYearMonth);
   const [selectedDate, setSelectedDate] = useState(todayString);
 
@@ -70,6 +70,7 @@ export default function CalendarScreen() {
           onEdit={edit}
           onMore={openMenu}
           onResolve={resolve}
+          onSaveEdits={saveGroupEdits}
         />
       )}
     </Screen>

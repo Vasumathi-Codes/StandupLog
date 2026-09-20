@@ -1,14 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { fontSize, fontWeight, NOTE_TYPE_META, spacing } from '@/constants/theme';
+import { fontSize, fontWeight, spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { Note, NoteType } from '@/types/note';
 import { formatMonthDay } from '@/utils/date';
 
 import { Button } from './Button';
 import { EmptyState } from './EmptyState';
-import { NoteCard } from './NoteCard';
-import { SectionHeader } from './SectionHeader';
+import { GroupEdits, NoteGroupCard } from './NoteGroupCard';
 import { TimesheetActions } from './TimesheetActions';
 
 const TYPES: NoteType[] = ['DONE', 'PLAN', 'BLOCKER'];
@@ -22,9 +21,10 @@ type Props = {
   onEdit: (note: Note) => void;
   onMore: (note: Note) => void;
   onResolve: (note: Note) => void;
+  onSaveEdits: (edits: GroupEdits) => Promise<boolean>;
 };
 
-export function DayNotes({ date, notes, timesheetNotes, onAdd, onEdit, onMore, onResolve }: Props) {
+export function DayNotes({ date, notes, timesheetNotes, onAdd, onEdit, onMore, onResolve, onSaveEdits }: Props) {
   const { colors } = useTheme();
   return (
     <View style={styles.container}>
@@ -54,18 +54,15 @@ export function DayNotes({ date, notes, timesheetNotes, onAdd, onEdit, onMore, o
               .sort((a, b) => Number(a.resolved) - Number(b.resolved));
             if (group.length === 0) return null;
             return (
-              <View key={type} style={styles.section}>
-                <SectionHeader title={NOTE_TYPE_META[type].plural} count={group.length} type={type} />
-                {group.map((note) => (
-                  <NoteCard
-                    key={note.id}
-                    note={note}
-                    onPress={() => onEdit(note)}
-                    onMorePress={() => onMore(note)}
-                    onResolve={() => onResolve(note)}
-                  />
-                ))}
-              </View>
+              <NoteGroupCard
+                key={type}
+                type={type}
+                notes={group}
+                onPress={onEdit}
+                onMorePress={onMore}
+                onResolve={onResolve}
+                onSaveEdits={onSaveEdits}
+              />
             );
           })}
           <Button label="Add Update" icon="add" onPress={onAdd} />
@@ -80,5 +77,4 @@ const styles = StyleSheet.create({
   header: { gap: spacing.xs },
   title: { fontSize: fontSize.section + 2, fontWeight: fontWeight.bold },
   count: { fontSize: fontSize.body },
-  section: { gap: spacing.md },
 });

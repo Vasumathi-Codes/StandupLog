@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { Alert, LayoutAnimation } from 'react-native';
 
+import type { GroupEdits } from '@/components/NoteGroupCard';
 import { deleteNote, StorageError, updateNote } from '@/services/storage';
 import { Note } from '@/types/note';
 
@@ -48,6 +49,20 @@ export function useNoteActions(reload: () => Promise<void>) {
     }
   };
 
+  // Applies inline edits from a NoteGroupCard: changed texts and removed rows. Resolves true on success.
+  const saveGroupEdits = async ({ updates, deletedIds }: GroupEdits): Promise<boolean> => {
+    try {
+      for (const { id, text } of updates) await updateNote(id, { text });
+      for (const id of deletedIds) await deleteNote(id);
+      await refreshAnimated();
+      return true;
+    } catch (error) {
+      showError('Could not save changes', error);
+      await reload(); // show whatever did get saved
+      return false;
+    }
+  };
+
   const openMenu = (note: Note) => {
     Alert.alert('Update', undefined, [
       { text: 'Edit', onPress: () => edit(note) },
@@ -56,5 +71,5 @@ export function useNoteActions(reload: () => Promise<void>) {
     ]);
   };
 
-  return { edit, confirmDelete, resolve, openMenu };
+  return { edit, confirmDelete, resolve, openMenu, saveGroupEdits };
 }

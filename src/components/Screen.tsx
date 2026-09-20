@@ -14,6 +14,7 @@ export function Screen({ children, edges = ['top'] }: { children: ReactNode; edg
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
         showsVerticalScrollIndicator={false}>
         {children}
       </ScrollView>
