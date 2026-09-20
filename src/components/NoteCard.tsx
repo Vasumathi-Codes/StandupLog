@@ -6,6 +6,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { Note } from '@/types/note';
 
 import { Button } from './Button';
+import { HighlightedText } from './HighlightedText';
 import { NoteTypeBadge } from './NoteTypeBadge';
 import { PressableScale } from './PressableScale';
 
@@ -14,13 +15,15 @@ type Props = {
   onPress?: () => void;
   onMorePress?: () => void;
   onResolve?: () => void;
+  // Search term to emphasise in the text.
+  highlight?: string;
 };
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 
-export function NoteCard({ note, onPress, onMorePress, onResolve }: Props) {
+export function NoteCard({ note, onPress, onMorePress, onResolve, highlight }: Props) {
   const { colors, cardShadow } = useTheme();
   const isBlocker = note.type === 'BLOCKER';
   const isResolved = isBlocker && note.resolved;
@@ -55,7 +58,11 @@ export function NoteCard({ note, onPress, onMorePress, onResolve }: Props) {
           </PressableScale>
         )}
       </View>
-      <Text style={[styles.text, { color: colors.text }, isResolved && styles.strike]}>{note.text}</Text>
+      <HighlightedText
+        text={note.text}
+        query={highlight}
+        style={[styles.text, { color: colors.text }, isResolved && styles.strike]}
+      />
       <Text style={[styles.meta, { color: colors.textSecondary }]}>{meta}</Text>
       {isBlocker && !isResolved && onResolve && (
         <Button label="Resolve" variant="secondary" icon="checkmark" onPress={onResolve} style={styles.resolve} />

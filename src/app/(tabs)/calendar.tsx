@@ -7,11 +7,12 @@ import { DayNotes } from '@/components/DayNotes';
 import { EmptyState } from '@/components/EmptyState';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
+import { ProjectChips } from '@/components/ProjectChips';
 import { useNoteActions } from '@/hooks/useNoteActions';
 import { useNotes } from '@/hooks/useNotes';
 import { useTheme } from '@/hooks/useTheme';
 import { addMonths, currentYearMonth, todayString } from '@/utils/date';
-import { summarizeByDate } from '@/utils/notes';
+import { matchesProject, summarizeByDate, uniqueProjects } from '@/utils/notes';
 
 export default function CalendarScreen() {
   const { colors } = useTheme();
@@ -20,8 +21,12 @@ export default function CalendarScreen() {
   const [visibleMonth, setVisibleMonth] = useState(currentYearMonth);
   const [selectedDate, setSelectedDate] = useState(todayString);
 
-  const summaries = useMemo(() => summarizeByDate(notes), [notes]);
-  const dayNotes = useMemo(() => notes.filter((note) => note.date === selectedDate), [notes, selectedDate]);
+  const [project, setProject] = useState<string | null>(null);
+
+  const projects = useMemo(() => uniqueProjects(notes), [notes]);
+  const visibleNotes = useMemo(() => notes.filter((note) => matchesProject(note, project)), [notes, project]);
+  const summaries = useMemo(() => summarizeByDate(visibleNotes), [visibleNotes]);
+  const dayNotes = useMemo(() => visibleNotes.filter((note) => note.date === selectedDate), [visibleNotes, selectedDate]);
 
   const selectDate = (date: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -36,6 +41,8 @@ export default function CalendarScreen() {
   return (
     <Screen>
       <ScreenHeader title="Calendar" subtitle="Your work journal" />
+
+      <ProjectChips projects={projects} selected={project} onSelect={setProject} />
 
       <CalendarView
         visibleMonth={visibleMonth}

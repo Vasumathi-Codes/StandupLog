@@ -24,3 +24,38 @@ export function summarizeByDate(notes: Note[]): Record<string, DaySummary> {
   }
   return summaries;
 }
+
+// Distinct project names, case-insensitively unique, alphabetical.
+export function uniqueProjects(notes: Note[]): string[] {
+  const seen = new Map<string, string>();
+  for (const note of notes) {
+    if (note.project && !seen.has(note.project.toLowerCase())) seen.set(note.project.toLowerCase(), note.project);
+  }
+  return [...seen.values()].sort((a, b) => a.localeCompare(b));
+}
+
+export function matchesProject(note: Note, project: string | null): boolean {
+  return project === null || note.project?.toLowerCase() === project.toLowerCase();
+}
+
+// Matches note text or project, case-insensitively. Newest first.
+export function searchNotes(notes: Note[], query: string, project: string | null = null): Note[] {
+  const needle = query.trim().toLowerCase();
+  return notes
+    .filter((note) => matchesProject(note, project))
+    .filter(
+      (note) => needle === '' || note.text.toLowerCase().includes(needle) || (note.project ?? '').toLowerCase().includes(needle),
+    )
+    .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+}
+
+// Input must already be sorted by date; keeps that order.
+export function groupByDate(notes: Note[]): { date: string; notes: Note[] }[] {
+  const groups: { date: string; notes: Note[] }[] = [];
+  for (const note of notes) {
+    const last = groups[groups.length - 1];
+    if (last && last.date === note.date) last.notes.push(note);
+    else groups.push({ date: note.date, notes: [note] });
+  }
+  return groups;
+}

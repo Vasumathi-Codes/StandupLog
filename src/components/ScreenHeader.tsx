@@ -11,6 +11,16 @@ type Props = { title: string; subtitle?: string; caption?: string };
 
 export function ScreenHeader({ title, subtitle, caption }: Props) {
   const { colors } = useTheme();
+  const iconButton = (icon: 'search-outline' | 'settings-outline', label: string, href: '/search' | '/settings') => (
+    <PressableScale
+      onPress={() => router.push(href)}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      style={[styles.iconButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <Ionicons name={icon} size={iconSize.md} color={colors.textSecondary} />
+    </PressableScale>
+  );
+
   return (
     <View style={styles.row}>
       <View style={styles.texts}>
@@ -20,13 +30,10 @@ export function ScreenHeader({ title, subtitle, caption }: Props) {
         </Text>
         {subtitle && <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
       </View>
-      <PressableScale
-        onPress={() => router.push('/settings')}
-        accessibilityRole="button"
-        accessibilityLabel="Settings"
-        style={[styles.settings, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Ionicons name="settings-outline" size={iconSize.md} color={colors.textSecondary} />
-      </PressableScale>
+      <View style={styles.buttons}>
+        {iconButton('search-outline', 'Search', '/search')}
+        {iconButton('settings-outline', 'Settings', '/settings')}
+      </View>
     </View>
   );
 }
@@ -37,7 +44,8 @@ const styles = StyleSheet.create({
   caption: { fontSize: fontSize.small, fontWeight: fontWeight.medium },
   title: { fontSize: fontSize.title, fontWeight: fontWeight.bold, letterSpacing: -0.5 },
   subtitle: { fontSize: fontSize.body },
-  settings: {
+  buttons: { flexDirection: 'row', gap: spacing.sm },
+  iconButton: {
     width: MIN_TOUCH,
     height: MIN_TOUCH,
     borderRadius: radius.pill,

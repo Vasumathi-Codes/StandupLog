@@ -1,16 +1,16 @@
 import { ReactNode } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Edge, SafeAreaView } from 'react-native-safe-area-context';
 
 import { spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
 // Shared page shell: themed background, safe area (notch) at the top, scrolling content.
 // The bottom safe area is handled by the tab bar.
-export function Screen({ children }: { children: ReactNode }) {
+export function Screen({ children, edges = ['top'] }: { children: ReactNode; edges?: Edge[] }) {
   const { colors } = useTheme();
   return (
-    <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <SafeAreaView edges={edges} style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"

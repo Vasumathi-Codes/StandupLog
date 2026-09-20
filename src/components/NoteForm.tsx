@@ -6,6 +6,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { NoteType } from '@/types/note';
 
 import { Button } from './Button';
+import { ProjectChips } from './ProjectChips';
 import { NoteTypeSelector } from './NoteTypeSelector';
 
 export type NoteFormValues = { type: NoteType; text: string; project: string };
@@ -17,6 +18,7 @@ type Props = {
   // Should throw an Error with a friendly message if saving fails.
   onSubmit: (values: NoteFormValues) => Promise<void>;
   onCancel: () => void;
+  projectSuggestions?: string[];
   // When provided (editing), shows a Delete button.
   onDelete?: () => void;
 };
@@ -27,7 +29,7 @@ const PLACEHOLDER: Record<NoteType, string> = {
   BLOCKER: "What's blocking you?",
 };
 
-export function NoteForm({ initialValues, dateLabel, submitLabel, onSubmit, onCancel, onDelete }: Props) {
+export function NoteForm({ initialValues, dateLabel, submitLabel, onSubmit, onCancel, onDelete, projectSuggestions = [] }: Props) {
   const { colors } = useTheme();
   const [type, setType] = useState(initialValues.type);
   const [text, setText] = useState(initialValues.text);
@@ -84,6 +86,7 @@ export function NoteForm({ initialValues, dateLabel, submitLabel, onSubmit, onCa
             returnKeyType="done"
             style={inputStyle}
           />
+          <ProjectChips projects={projectSuggestions} selected={project || null} onSelect={(p) => setProject(p ?? '')} showAll={false} />
         </View>
 
         {error && <Text style={[styles.error, { color: colors.error }]}>{error}</Text>}
