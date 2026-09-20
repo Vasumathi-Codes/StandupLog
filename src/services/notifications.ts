@@ -12,15 +12,20 @@ const REMINDERS: Record<ReminderKind, { id: string; body: string }> = {
 
 const CHANNEL_ID = 'reminders';
 
+// Local notifications need a phone; the web preview has no notification scheduling.
+export const remindersSupported = Platform.OS !== 'web';
+
 // Show reminders as a banner even if the app happens to be open.
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
+if (remindersSupported) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 async function ensureAndroidChannel(): Promise<void> {
   if (Platform.OS !== 'android') return;
@@ -34,6 +39,7 @@ async function ensureAndroidChannel(): Promise<void> {
 // iOS: shows a one-time system prompt. Android 13+: shows the POST_NOTIFICATIONS prompt.
 // If the user denied it before, the OS won't ask again; they must enable it in system settings.
 export async function ensureNotificationPermission(): Promise<boolean> {
+  if (!remindersSupported) return false;
   try {
     await ensureAndroidChannel(); // Android requires a channel to exist before asking
     const current = await Notifications.getPermissionsAsync();

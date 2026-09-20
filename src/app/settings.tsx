@@ -7,7 +7,7 @@ import { OptionPicker } from '@/components/OptionPicker';
 import { fontSize, fontWeight, radius, spacing } from '@/constants/theme';
 import { useSettings } from '@/hooks/useSettings';
 import { useTheme } from '@/hooks/useTheme';
-import { cancelReminder, ensureNotificationPermission, ReminderKind, scheduleReminder } from '@/services/notifications';
+import { cancelReminder, ensureNotificationPermission, ReminderKind, remindersSupported, scheduleReminder } from '@/services/notifications';
 import { ReminderSetting, ThemePreference } from '@/services/settings';
 
 export default function SettingsScreen() {
@@ -48,6 +48,7 @@ export default function SettingsScreen() {
         title={title}
         description={description}
         value={reminder.enabled}
+        disabled={!remindersSupported}
         onValueChange={(enabled) => changeReminder(kind, { enabled })}>
         {reminder.enabled && (
           <TimeField
@@ -93,6 +94,11 @@ export default function SettingsScreen() {
 
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>REMINDERS</Text>
+        {!remindersSupported && (
+          <Text style={[styles.note, { color: colors.textSecondary }]}>
+            Reminders only work in the phone app, not in the web preview.
+          </Text>
+        )}
         <View style={[styles.card, cardShadow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           {reminderRow('evening', 'Evening reminder', '"What did you finish today?"')}
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
@@ -106,6 +112,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   section: { gap: spacing.sm },
   sectionTitle: { fontSize: fontSize.caption, fontWeight: fontWeight.semibold, letterSpacing: 0.6 },
+  note: { fontSize: fontSize.small },
   divider: { height: StyleSheet.hairlineWidth },
   card: { padding: spacing.lg, borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, gap: spacing.lg },
 });

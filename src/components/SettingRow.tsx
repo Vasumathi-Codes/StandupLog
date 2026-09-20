@@ -9,10 +9,11 @@ type Props = {
   description?: string;
   value: boolean;
   onValueChange: (value: boolean) => void;
+  disabled?: boolean;
   children?: ReactNode; // extra controls shown under the row when relevant
 };
 
-export function SettingRow({ title, description, value, onValueChange, children }: Props) {
+export function SettingRow({ title, description, value, onValueChange, disabled, children }: Props) {
   const { colors } = useTheme();
   return (
     <View style={styles.container}>
@@ -23,6 +24,7 @@ export function SettingRow({ title, description, value, onValueChange, children 
         </View>
         <Switch
           value={value}
+          disabled={disabled}
           onValueChange={onValueChange}
           accessibilityLabel={title}
           trackColor={{ true: colors.primaryDark, false: colors.border }}

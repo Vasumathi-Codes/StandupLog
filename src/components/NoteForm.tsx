@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { fontSize, fontWeight, MIN_TOUCH, radius, spacing } from '@/constants/theme';
@@ -19,6 +19,8 @@ type Props = {
   onSubmit: (values: NoteFormValues) => Promise<void>;
   onCancel: () => void;
   projectSuggestions?: string[];
+  // After a successful save, clear the text and stay open to add another (Add flow).
+  keepOpen?: boolean;
   // When provided (editing), shows a Delete button.
   onDelete?: () => void;
 };
@@ -29,13 +31,15 @@ const PLACEHOLDER: Record<NoteType, string> = {
   BLOCKER: "What's blocking you?",
 };
 
-export function NoteForm({ initialValues, dateLabel, submitLabel, onSubmit, onCancel, onDelete, projectSuggestions = [] }: Props) {
+export function NoteForm({ initialValues, dateLabel, submitLabel, onSubmit, onCancel, onDelete, projectSuggestions = [], keepOpen = false }: Props) {
   const { colors } = useTheme();
   const [type, setType] = useState(initialValues.type);
   const [text, setText] = useState(initialValues.text);
   const [project, setProject] = useState(initialValues.project);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [addedCount, setAddedCount] = useState(0);
+  const textInputRef = useRef<TextInput>(null);
 
   const canSave = text.trim().length > 0 && !saving;
 
@@ -45,6 +49,13 @@ export function NoteForm({ initialValues, dateLabel, submitLabel, onSubmit, onCa
     setError(null);
     try {
       await onSubmit({ type, text, project });
+      if (keepOpen) {
+        // Keep the type and project (you often add several in a row); clear only the text.
+        setText('');
+        setAddedCount((count) => count + 1);
+        setSaving(false);
+        textInputRef.current?.focus();
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not save. Please try again.');
       setSaving(false);
@@ -63,6 +74,7 @@ export function NoteForm({ initialValues, dateLabel, submitLabel, onSubmit, onCa
         <NoteTypeSelector value={type} onChange={setType} />
 
         <TextInput
+          ref={textInputRef}
           value={text}
           onChangeText={setText}
           placeholder={PLACEHOLDER[type]}
@@ -89,10 +101,16 @@ export function NoteForm({ initialValues, dateLabel, submitLabel, onSubmit, onCa
           <ProjectChips projects={projectSuggestions} selected={project || null} onSelect={(p) => setProject(p ?? '')} showAll={false} />
         </View>
 
+        {addedCount > 0 && (
+          <Text accessibilityLiveRegion="polite" style={[styles.added, { color: colors.doneText }]}>
+            ✓ {addedCount} {addedCount === 1 ? 'update' : 'updates'} added. Pick a type to add another.
+          </Text>
+        )}
+
         {error && <Text style={[styles.error, { color: colors.error }]}>{error}</Text>}
 
         <View style={styles.actions}>
-          <Button label="Cancel" variant="secondary" onPress={onCancel} style={styles.action} />
+          <Button label={addedCount > 0 ? 'Done' : 'Cancel'} variant="secondary" onPress={onCancel} style={styles.action} />
           <Button label={submitLabel} onPress={handleSubmit} disabled={!canSave} style={styles.action} />
         </View>
 
@@ -117,6 +135,7 @@ const styles = StyleSheet.create({
   textInput: { minHeight: 120 },
   field: { gap: spacing.xs },
   fieldLabel: { fontSize: fontSize.small, fontWeight: fontWeight.medium },
+  added: { fontSize: fontSize.small, fontWeight: fontWeight.medium },
   error: { fontSize: fontSize.small },
   actions: { flexDirection: 'row', gap: spacing.sm },
   action: { flex: 1 },

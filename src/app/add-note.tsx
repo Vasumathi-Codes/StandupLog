@@ -19,8 +19,8 @@ export default function AddNoteScreen() {
   const type = TYPES.find((t) => t === params.type) ?? 'DONE';
 
   const handleSubmit = async (values: NoteFormValues) => {
+    // Stay open so several updates can be added in a row; "Done" closes the modal.
     await addNote({ text: values.text, type: values.type, project: values.project, date });
-    router.back();
   };
 
   return (
@@ -28,6 +28,7 @@ export default function AddNoteScreen() {
       initialValues={{ type, text: '', project: '' }}
       dateLabel={`For ${formatLongDate(parseDateString(date))}`}
       submitLabel="Add Update"
+      keepOpen
       onSubmit={handleSubmit}
       onCancel={() => router.back()}
       projectSuggestions={projects}
